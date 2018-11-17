@@ -237,8 +237,7 @@
 (defun %dist-or-and-1 (literals and-exp)
   (assert (every #'lit-p literals))
   (assert (cnf-p and-exp))
-  ;; TODO: implement
-  `(or ,@literals ,and-exp))
+  (cons 'and (mapcar #'(lambda (l) `(or ,@literals ,@(cdr l))) (cdr and-exp))))
 
 ;; Distribute OR over two AND expressions:
 ;;
@@ -250,6 +249,10 @@
   (assert (cnf-p and-exp-1))
   (assert (cnf-p and-exp-2))
   ;; TODO: implement
+  (let* ((output '()))
+    (dolist (x (cdr and-exp-1) output)
+          (setq output (nconc (mapcar #'(lambda (l) `(,@x ,@(cdr l))) (cdr and-exp-2)) output)))
+    (cons 'and output)))
   `(or ,and-exp-1 ,and-exp-2))
 
 
