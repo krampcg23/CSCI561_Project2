@@ -253,7 +253,7 @@
     (dolist (x (cdr and-exp-1) output)
           (setq output (nconc (mapcar #'(lambda (l) `(,@x ,@(cdr l))) (cdr and-exp-2)) output)))
     (cons 'and output)))
-  `(or ,and-exp-1 ,and-exp-2))
+  ;;`(or ,and-exp-1 ,and-exp-2))
 
 
 ;; Distribute n-ary OR over the AND arguments:
@@ -414,10 +414,9 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
 
 (defun dpll-unit-propagate (maxterms bindings)
   "Perform unit propagation.
-
-RESULT: (VALUES MAXTERMS BINDINGS)"
+  RESULT: (VALUES MAXTERMS BINDINGS)"
   (labels ((repeat (var value)
-             ;; Bind literal from the unit clause and re-propagate
+             ;; Bind literal from the unit clause and re-propagate     
              (multiple-value-call #'dpll-unit-propagate
                (dpll-bind maxterms var value bindings)))
            (rec (rest)
@@ -425,7 +424,9 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
                  (destructuring-bind (x &rest rest) rest
                    (if (maxterm-unit-p x)
                        (progn
-                         ;; TODO: propagate the unit clause
+                         (if (eq (maxterm-pos x) nil)
+                             (repeat (maxterm-neg x) nil)
+                             (repeat (maxterm-pos x) t))
                          nil)
                        (rec rest)))
                  ;; no unit clauses
@@ -454,8 +455,15 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
                  (values maxterms bindings)
                  ;; unit propagate
                  (progn
+                   (dpll-unit-propagate maxterms bindings)
+                   (print "hello")
                    ;; TODO: implement the recursive case
-                   nil))))
+                  ;; (multiple-value-bind (phimaxterms phibindings) (dpll-unit-propagate maxterms bindings)
+                  ;;   (let* ((v (dpll-choose-literal phimaxterms)))
+                  ;;     (if (dpll (maxterm-bind phimaxterms v t))
+                  ;;         t
+                  ;;         (dpll (maxterm-bind phimaxterms v nil))))          
+                   ))))
     (multiple-value-bind (nil-or-unsat bindings)
         (rec maxterms nil)
       (cond
