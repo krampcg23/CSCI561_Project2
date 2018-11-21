@@ -425,9 +425,8 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
                    (if (maxterm-unit-p x)
                        (progn
                          (if (eq (maxterm-pos x) nil)
-                             (repeat (maxterm-neg x) nil)
-                             (repeat (maxterm-pos x) t))
-                         nil)
+                             (repeat (car (maxterm-neg x)) nil)
+                             (repeat (car (maxterm-pos x)) t)))
                        (rec rest)))
                  ;; no unit clauses
                  (values maxterms bindings))))
@@ -449,21 +448,23 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
   (labels ((maxterm-result (maxterms)
              (or (null maxterms)       ; all maxterms true => (AND)
                  (eq :UNSAT maxterms))) ; found a false maxterm clauses
+           
            (rec (maxterms bindings)
-             (if (maxterm-result maxterms)
+             (multiple-value-bind (phimaxterms phibindings) (dpll-unit-propagate maxterms bindings)
+               (if (maxterm-result phimaxterms)
                  ;; already have a result
-                 (values maxterms bindings)
+                 (values phimaxterms phibindings)
                  ;; unit propagate
                  (progn
-                   (dpll-unit-propagate maxterms bindings)
-                   (print "hello")
-                   ;; TODO: implement the recursive case
-                  ;; (multiple-value-bind (phimaxterms phibindings) (dpll-unit-propagate maxterms bindings)
-                  ;;   (let* ((v (dpll-choose-literal phimaxterms)))
-                  ;;     (if (dpll (maxterm-bind phimaxterms v t))
-                  ;;         t
-                  ;;         (dpll (maxterm-bind phimaxterms v nil))))          
-                   ))))
+                   (let* ((v (dpll-choose-literal phimaxterms)))
+                    ; (print v)
+                     (multiple-value-bind (phimaxterms2 phibindings2) (dpll-bind phimaxterms v t phibindings)
+                       (if (rec phimaxterms2 phibindings2)
+                           (values phimaxterms2 phibindings2)
+                           (progn
+                             (multiple-value-bind (phimaxterms2 phibindings2) (dpll-bind phimaxterms v nil phibindings)
+                             (rec phimaxterms2 phibindings2)))
+                   ))))))))
     (multiple-value-bind (nil-or-unsat bindings)
         (rec maxterms nil)
       (cond
