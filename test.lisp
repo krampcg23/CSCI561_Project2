@@ -53,5 +53,12 @@
     (test-case (sat-p '(and (:implies a b) (:iff a b) a (not b))) nil)
     (test-case (sat-p '(and (:implies a (not b)) (:iff a b))) t)
     (test-case (sat-p '(and (:implies a (not b)) (:iff (not a) b) a b)) nil)
+    (test-case (sat-p '(and (and a b) (and (not a) (not b)))) nil)
+    (test-case (sat-p '(or (and a b) (and (not a) (not b)))) t)
+    (test-case (sat-p '(:implies (or a b) (not b))) t)
+    (test-case (sat-p '(and (:implies (or a b) (not b)) b)) nil)
+    (test-case (sat-p '(and (:iff (and a b) (or (not a) b)) (not a))) nil)
+    (test-case (sat-p '(:iff a (not a))) nil)
+    (test-case (sat-p '(:iff (and a b) (not (and a b)))) nil)
 
   )
