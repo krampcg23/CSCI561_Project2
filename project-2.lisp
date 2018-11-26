@@ -188,7 +188,8 @@
                           (let* ((andl '()))
                             (dolist (a args andl)
                               (setq andl (cons (visit a truth) andl)))
-                            (setq andl (cons 'and andl)))
+                            (setq andl (cons 'and andl))
+                            andl)
                           ))
                      (otherwise
                       (base e truth)))))))
@@ -248,13 +249,11 @@
 (defun %dist-or-and-and (and-exp-1 and-exp-2)
   (assert (cnf-p and-exp-1))
   (assert (cnf-p and-exp-2))
-  ;; TODO: implement
+  ;; TODO: implement  
   (let* ((output '()))
     (dolist (x (cdr and-exp-1) output)
           (setq output (nconc (mapcar #'(lambda (l) `(,@x ,@(cdr l))) (cdr and-exp-2)) output)))
     (cons 'and output)))
-  ;;`(or ,and-exp-1 ,and-exp-2))
-
 
 ;; Distribute n-ary OR over the AND arguments:
 ;;
@@ -448,7 +447,6 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
   (labels ((maxterm-result (maxterms)
              (or (null maxterms)       ; all maxterms true => (AND)
                  (eq :UNSAT maxterms))) ; found a false maxterm clauses
-           
            (rec (maxterms bindings)
              (multiple-value-bind (phimaxterms phibindings) (dpll-unit-propagate maxterms bindings)
                (if (maxterm-result phimaxterms)
@@ -457,9 +455,8 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
                  ;; unit propagate
                  (progn
                    (let* ((v (dpll-choose-literal phimaxterms)))
-                    ; (print v)
                      (multiple-value-bind (phimaxterms2 phibindings2) (dpll-bind phimaxterms v t phibindings)
-                       (if (rec phimaxterms2 phibindings2)
+                       (if (not (rec phimaxterms2 phibindings2))
                            (values phimaxterms2 phibindings2)
                            (progn
                              (multiple-value-bind (phimaxterms2 phibindings2) (dpll-bind phimaxterms v nil phibindings)
@@ -473,7 +470,6 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
         ((eq :UNSAT nil-or-unsat)
          (values nil bindings))
         (t (error "Invalid final result ~A" nil-or-unsat))))))
-
 
 (defun sat-p (e)
   "Check satisfiability of e."
