@@ -455,13 +455,17 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
                  ;; unit propagate
                  (progn
                    (let* ((v (dpll-choose-literal phimaxterms)))
-                     (multiple-value-bind (phimaxterms2 phibindings2) (dpll-bind phimaxterms v t phibindings)
-                       (if (not (rec phimaxterms2 phibindings2))
-                           (values phimaxterms2 phibindings2)
-                           (progn
-                             (multiple-value-bind (phimaxterms2 phibindings2) (dpll-bind phimaxterms v nil phibindings)
-                             (rec phimaxterms2 phibindings2)))
-                   ))))))))
+                     (multiple-value-bind (phimaxterm2 phibindings2) (dpll-bind phimaxterms v t phibindings)
+                       (multiple-value-bind (outputMaxTerm outputBinding) (rec phimaxterm2 phibindings2)
+                         (if (not outputMaxTerm)
+                             (values outputMaxTerm outputBinding)
+                             (progn
+                               (multiple-value-bind (phimaxterm2 phibindings2) (dpll-bind phimaxterms v nil phibindings)
+                                 (multiple-value-bind (outputMaxTerm outputBinding) (rec phimaxterm2 phibindings2)
+                                   (if (not outputMaxTerm)
+                                     (values outputMaxTerm outputBinding)
+                             )))))))))))))
+    
     (multiple-value-bind (nil-or-unsat bindings)
         (rec maxterms nil)
       (cond
