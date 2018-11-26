@@ -60,5 +60,5 @@
     (test-case (sat-p '(and (:iff (and a b) (or (not a) b)) (not a))) nil)
     (test-case (sat-p '(:iff a (not a))) nil)
     (test-case (sat-p '(:iff (and a b) (not (and a b)))) nil)
-
+    (test-case (sat-p '(:iff (or a b) (not (or a b)))) nil)
   )
