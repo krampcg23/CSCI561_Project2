@@ -37,9 +37,21 @@
     (test-case (dpll (cnf-maxterms '(and (or a b c d (not a) (not a) a)))) t)
     (test-case (dpll (cnf-maxterms '(and (or a) (or (not a))))) nil)
     (test-case (dpll (cnf-maxterms '(and (or a) (or b) (or (not b)) (or c d e f g)))) nil)
+
     ;test sat-p
-
-
-
+    (test-case (sat-p '(and (or a) (or b) (or c d))) t)
+    (test-case (sat-p '(:implies a b)) t)
+    (test-case (sat-p '(and (:implies a b) (or (not b)))) t)
+    (test-case (sat-p '(and (:implies a b) (or (not b)) (or a))) nil)
+    (test-case (sat-p '(:iff a b)) t)
+    (test-case (sat-p '(and (:iff a b) (or (not a)))) t)
+    (test-case (sat-p '(and (and a b) (or b c))) t)
+    (test-case (sat-p '(and (and a b c) (not a))) nil)
+    (test-case (sat-p '(or (not a) a)) t)
+    (test-case (sat-p '(or (and a b) (and (not a) b) (and a (not b)))) t)
+    (test-case (sat-p '(and (or a b) (or a b) (or a b))) t)
+    (test-case (sat-p '(and (:implies a b) (:iff a b) a (not b))) nil)
+    (test-case (sat-p '(and (:implies a (not b)) (:iff a b))) t)
+    (test-case (sat-p '(and (:implies a (not b)) (:iff (not a) b) a b)) nil)
 
   )
