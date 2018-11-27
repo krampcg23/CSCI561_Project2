@@ -1,4 +1,5 @@
 ;same tests as Sumner Evan's group
+;sbcl --load project-2.lisp --load test.lisp --eval '(run-tests)'
 (defmacro test-case (stx result)
   `(let ((actual ,stx))
      (if (equal actual ,result)
@@ -16,6 +17,7 @@
     (test-case (exp->nnf '(not (:iff a b))) '(OR (AND A (NOT B)) (AND B (NOT A))))
     (test-case (exp->nnf '(:iff a b)) '(and (or (not a) b) (or (not b) a)))
     (test-case (exp->nnf '(:implies A b)) '(oR (NOT a) B))
+
     ;test exp->cnf
     (test-case (exp->cnf '(:iff A B)) '(and  (or (NOT B) A)(or (NOT A) B))) 
     (test-case (exp->cnf '(:implies A B)) '(and (or (not A) B)))
@@ -61,4 +63,16 @@
     (test-case (sat-p '(:iff a (not a))) nil)
     (test-case (sat-p '(:iff (and a b) (not (and a b)))) nil)
     (test-case (sat-p '(:iff (or a b) (not (or a b)))) nil)
+    (test-case (sat-p '(:implies (or a b) (and (or a b c) (not (or a (and b c)))))) t)
+    (test-case (sat-p '(:iff (and a b c d) (not (and a b c d)))) nil)
+    (test-case (sat-p '(and a (not a) (or b (not b)) c d)) nil)
+    (test-case (sat-p '(or (and a b) (or a b c d (and (not e) e)))) t)
+    (test-case (sat-p '(or (and (or a b) c (:implies a (and a))))) t)
+    (test-case (sat-p '(:implies a (not a))) t)
+    (test-case (sat-p '(and (not (or a b c a)) (or a b c))) nil)
+    (test-case (sat-p '(:iff (and a b c) (or a b c))) t)
+    (test-case (sat-p '(:implies (:implies (:implies (:implies (:implies a b) c) d) e) f)) t)
+    (test-case (sat-p '(:iff (and (and (and a))) (or a (or b)))) t)
+    (test-case (sat-p '(and (not (and (and (and (and a))) b c d)) (and a b c d))) nil)
+    (test-case (sat-p '(not (and a b (and c d)))) t)
   )

@@ -462,11 +462,8 @@ RESULT: (VALUES MAXTERMS BINDINGS)"
                              (progn
                                (multiple-value-bind (phimaxterm2 phibindings2) (dpll-bind phimaxterms v nil phibindings)
                                  (multiple-value-bind (outputMaxTerm outputBinding) (rec phimaxterm2 phibindings2)
-                                   (if (not outputMaxTerm)
-                                       (values outputMaxTerm outputBinding)
-                                       (if (equal :UNSAT outputMaxTerm)
-                                           (values outputMaxTerm outputBinding))
-                             )))))))))))))
+                                   (values outputMaxTerm outputBinding)
+                             ))))))))))))
     
     (multiple-value-bind (nil-or-unsat bindings)
         (rec maxterms nil)
